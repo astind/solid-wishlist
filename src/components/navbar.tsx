@@ -14,10 +14,10 @@ export default function NavBar(props: { location: string }) {
   createEffect(() => {
     if (darkMode()) {
       document.body.classList.add('dark');
-    	document.querySelector('html')?.setAttribute('data-theme', 'coffee');
+    	document.querySelector('html')?.setAttribute('data-theme', 'business');
     } else {
       document.body.classList.remove('dark');
-    	document.querySelector('html')?.setAttribute('data-theme', 'garden');
+    	document.querySelector('html')?.setAttribute('data-theme', 'corporate');
     }
   })
 
