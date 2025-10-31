@@ -1,0 +1,7 @@
+export type WishlistItem = {
+  name: string, 
+  description?: string, 
+  url?: string, 
+  price?: string, 
+  iconLink?: string 
+}
