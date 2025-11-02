@@ -26,10 +26,33 @@ export async function getLists(ownerId: string, limit?: number, orderByRecent: b
 		}
 	} catch (e) {
     console.error(e);
-	  let message = "Failed to get lists"
-		throw message;
+		throw "Failed to get lists";
 	}
 	return lists;
+}
+
+export async function getAllLists(publicLists: boolean = true, limit?: number) {
+  let lists: any[] = [];
+  try {
+
+    const results = await db.query.listTable.findMany({
+      columns: {
+        id: true,
+        name: true,
+        description: true
+      },
+      where: eq(listTable.private, publicLists ? false : true || false), // go back and check this if we 
+      orderBy: [desc(listTable.lastUpdated), desc(listTable.dateCreated)],
+      limit: limit
+    })
+    if (results.length) {
+      lists = results;
+    }
+  } catch (error) {
+    console.error(error);
+    throw "Failed to get lists"
+  }
+  return lists
 }
 
 export async function addList(name: string, ownerId: string, description?: string, isPrivate: boolean = false, listType: "wishlist" | "checklist" = "wishlist") {
