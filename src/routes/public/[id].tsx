@@ -14,7 +14,7 @@ export default function PublicListPage() {
     <Suspense fallback={<div>Loading List...</div>}>
       <div class="flex flex-col">
         <div class="flex flex-col items-center space-y-2 mt-4">
-          <h1 class="text-2xl mt-4 lg:mt-0 font-semibold">{list()?.name}</h1>
+          <h1 class="text-2xl mt-4 lg:mt-0 font-semibold">{list()?.name} - Public View</h1>
           <p>{list()?.description}</p>
         </div>
       </div>

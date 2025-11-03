@@ -21,10 +21,25 @@ export default function WishlistItem(props: WishlistItemProps) {
 
   createEffect(() => {
     if (!isEditClosed()) {
-      props.openEditSetter(-1);
+      closeDropDown();
       setIsEditClosed(true);
     }
   })
+
+  function closeDropDown() {
+    props.openEditSetter(-1);
+    props.openDeleteSetter(-1);
+  }
+
+  function openDropDown(edit: boolean = true) {
+    if (edit) {
+      props.openDeleteSetter(-1);
+      props.openEditSetter(props.index);
+    } else {
+      props.openEditSetter(-1);
+      props.openDeleteSetter(props.index);
+    }
+  }
 
   return (
     <li class="grid grid-cols-10 py-5 first:pt-0 last:pb-0 last:border-b-0 border-b border-base-200">
@@ -57,7 +72,7 @@ export default function WishlistItem(props: WishlistItemProps) {
               ${item().price}
             </div>
           </Show>
-          <button aria-label="Edit Item" onclick={() => props.openEditSetter(props.index)} class="btn btn-square btn-ghost">
+          <button aria-label="Edit Item" onclick={() => openDropDown(true)} class="btn btn-square btn-ghost">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -73,7 +88,7 @@ export default function WishlistItem(props: WishlistItemProps) {
               />
             </svg>
           </button>
-          <button aria-label="Delete Item" onclick={() => props.openDeleteSetter(props.index)} class="hidden md:flex btn btn-square btn-ghost">
+          <button aria-label="Delete Item" onclick={() => openDropDown(false)} class="hidden md:flex btn btn-square btn-ghost">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -100,14 +115,14 @@ export default function WishlistItem(props: WishlistItemProps) {
               Are you sure you want to delete this item?
             </div>
             <div class="md:ml-4 mt-4 md:mt-0 flex justify-end space-x-2">
-              <button type="button" class="btn btn-info" onClick={() => props.openDeleteSetter(-1)}>Cancel</button>
+              <button type="button" class="btn btn-info" onClick={closeDropDown}>Cancel</button>
               <button type="submit" class="btn btn-error">Delete</button>
             </div>
           </form>
         </Show>
         <Show when={props.editIndex === props.index}>
           <div class="md:hidden flex justify-end mt-2">
-            <button type="button" class="btn btn-square btn-ghost" aria-label="Delete item" onClick={() => props.openDeleteSetter(props.index)}>
+            <button type="button" class="btn btn-square btn-ghost" aria-label="Delete item" onClick={() => openDropDown(false)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
