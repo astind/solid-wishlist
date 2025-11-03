@@ -3,5 +3,6 @@ export type WishlistItem = {
   description?: string, 
   url?: string, 
   price?: string, 
-  iconLink?: string 
+  iconLink?: string
+  done: boolean
 }

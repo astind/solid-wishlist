@@ -201,7 +201,7 @@ export default function ListPage() {
                 <WishlistItem
                   itemId={item.id}
                   listId={list()!.id}
-                  item={{name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined}}
+                  item={{name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done}}
                   index={index()}
                   editIndex={isEditOpen()}
                   deleteIndex={isDeleteOpen()}
@@ -209,6 +209,7 @@ export default function ListPage() {
                   openDeleteSetter={setIsDeleteOpen}
                   deleteAction={deleteListItemAction}
                   editAction={updateListItemAction}
+                  canEdit={true}
                 ></WishlistItem>
               </Match>
             </Switch>
