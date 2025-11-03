@@ -34,7 +34,6 @@ export async function getLists(ownerId: string, limit?: number, orderByRecent: b
 export async function getAllLists(publicLists: boolean = true, limit?: number) {
   let lists: any[] = [];
   try {
-
     const results = await db.query.listTable.findMany({
       columns: {
         id: true,
@@ -282,5 +281,34 @@ export async function deleteAllDone(listId: string, userId: string, owner: boole
     throw "Failed to remove group";
   }
   updateListTimestamp(listId)
+}
+
+export async function getPublicList(listId: string) {
+  try {
+    const list = await db.query.listTable.findFirst({
+      where: eq(listTable.id, listId),
+      columns: {
+        id: true,
+        name: true,
+        description: true,
+        dateCreated: true,
+        listType: true
+      },
+      with: {
+        items: {
+          orderBy: [desc(listItemTable.rank), desc(listItemTable.dateAdded)]
+        },
+        owner: {
+          columns: {
+            username: true
+          }
+        }
+      }
+    });
+    return list
+  } catch (error) {
+    console.error(error);
+    throw "Failed to get list";    
+  }
 }
 

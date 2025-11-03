@@ -2,7 +2,7 @@
 import { redirect } from "@solidjs/router";
 import { getRequestEvent, RequestEvent } from "solid-js/web";
 import { type Locals } from "../models/locals.model";
-import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, newListItem, toggleDone } from "./lists.service";
+import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, getPublicList, newListItem, toggleDone } from "./lists.service";
 
 function getRequest(): [RequestEvent, Locals] {
   const requestEvent = getRequestEvent();
@@ -157,6 +157,11 @@ export async function updateListItem(form: FormData) {
 
 export async function getPublicLists() {
   const lists = await getAllLists(true);
-  return {lists: lists};
+  return {lists: lists}
+}
+
+export async function getPublicListItems(listId: string) {
+  const list = await getPublicList(listId);
+  return list;
 }
 
