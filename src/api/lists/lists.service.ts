@@ -32,7 +32,7 @@ export async function getLists(ownerId: string, limit?: number, orderByRecent: b
 	return lists;
 }
 
-export async function getAllLists(userId: string, publicLists: boolean = true, limit?: number) {
+export async function getAllLists(publicLists: boolean = true, userId?: string, limit?: number) {
   let lists: any[] = [];
   let eqValue;
   if (publicLists) {
@@ -57,7 +57,9 @@ export async function getAllLists(userId: string, publicLists: boolean = true, l
         lists = results.map((value) => {
           let {ownerId, ...val} = value;
           let anyObj: any = val as any;
-          anyObj["isOwner"] = value.ownerId === userId;
+          if (userId) {
+            anyObj["isOwner"] = value.ownerId === userId;
+          }
           return anyObj;
         });
       } else {
@@ -225,7 +227,7 @@ export async function deleteListItem(itemId: number, userId: string, listId: str
   updateListTimestamp(listId);
 }
 
-export async function toggleDone(itemId: number, by: string) {
+export async function toggleDone(itemId: number, by?: string) {
   try {
     const item = await db.query.listItemTable.findFirst({
       where: eq(listItemTable.id, itemId),
@@ -248,6 +250,9 @@ export async function toggleDone(itemId: number, by: string) {
       throw "Item not found";
     }
     if (item.list?.private && by !== item.list.ownerId) {
+      if (!by) {
+        throw "Missing UserId";
+      } 
       // check for shared list
       const sharedRecord = await db.query.sharedListsTable.findFirst({
         where: and(eq(sharedListsTable.listId, item.listId!), eq(sharedListsTable.userId, by))
@@ -274,7 +279,9 @@ export async function toggleDone(itemId: number, by: string) {
     let byUser = null;
     if (!item.done) {
       date = new Date();
-      byUser = by;
+      if (by) {
+        byUser = by;
+      }
     }
     await db.update(listItemTable).set({
       done: update,

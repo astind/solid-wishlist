@@ -76,7 +76,7 @@ export async function getUserLocals(redirectUser: boolean = true) {
       console.log('redirect to login');
       throw redirect("/login");
     } else {
-      return undefined;
+      return undefined
     }
   }
 }

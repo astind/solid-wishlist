@@ -17,6 +17,19 @@ function getRequest(): [RequestEvent, Locals] {
   }
 }
 
+function getRequestPublic(): [RequestEvent, Locals | undefined] {
+  const requestEvent = getRequestEvent();
+  if (requestEvent) {
+    if (requestEvent.locals.user) {
+      return [requestEvent, {user: requestEvent.locals.user, session: requestEvent.locals.session}];
+    } else {
+      return [requestEvent, undefined];
+    }
+  } else {
+    throw "Not a server request";
+  }
+}
+
 function getFormData(form: FormData, key: string, required: boolean = false, type: string = "string") {
   if (form.get(key)) {
     const value = form.get(key);
@@ -124,8 +137,13 @@ export async function toggleComplete(itemId: string | number) {
   if (!itemId) {
     throw "Missing item info"
   }
-  const [, locals] = getRequest();
-  await toggleDone(+itemId, locals.user.id);
+  const [, locals] = getRequestPublic();
+  let userId = undefined;
+  if (locals) {
+    userId = locals.user.id
+  }
+  await toggleDone(+itemId, userId);
+  return {message: "Item Toggled"};
 }
 
 export async function removeListItem(form: FormData) {
@@ -156,8 +174,12 @@ export async function updateListItem(form: FormData) {
 }
 
 export async function getPublicLists() {
-  const [, locals] = getRequest();
-  const lists = await getAllLists(locals.user.id, true);
+  const [, locals] = getRequestPublic();
+  let userId = undefined;
+  if (locals) {
+    userId = locals.user.id;
+  }
+  const lists = await getAllLists(true, userId);
   return {lists: lists}
 }
 

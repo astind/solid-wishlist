@@ -15,6 +15,8 @@ type WishlistItemProps = {
   editAction?: any;
   deleteAction?: any;
   toggleAction?: any;
+  warningSetter?: Setter<"close" | "confirm" | "open">;
+  warningSignal?: "close" | "confirm" | "open";
   openEditSetter?: Setter<number>;
   openDeleteSetter?: Setter<number>;
 }
@@ -25,9 +27,12 @@ export default function WishlistItem(props: WishlistItemProps) {
   const [isEditClosed, setIsEditClosed] = createSignal(true);
   const [canEdit] = createSignal(props.canEdit !== undefined ? props.canEdit : false);
   const [doneBy, setDoneBy] = createSignal(props.item.doneBy);
+  const [waitingForConfirm, setWaiting] = createSignal(false)
+
   let toggleAction: any = undefined;
   if (props.toggleAction) {
     toggleAction = useAction(props.toggleAction);
+
   }
   createEffect(() => {
     if (!isEditClosed()) {
@@ -35,6 +40,19 @@ export default function WishlistItem(props: WishlistItemProps) {
       setIsEditClosed(true);
     }
   })
+
+  if (props.warningSignal) {
+    createEffect(() => {
+      if (waitingForConfirm() && props.warningSignal === "confirm") {
+        sendToggle();
+        if (props.warningSetter) {
+          props.warningSetter("close");
+          setWaiting(false);
+        }
+      }
+    })
+  }
+
 
   function closeDropDown() {
     if (props.openEditSetter && props.openDeleteSetter) {
@@ -55,13 +73,26 @@ export default function WishlistItem(props: WishlistItemProps) {
     }
   }
 
-  function toggleDone() {
+  function sendToggle() {
     if (toggleAction) {
       toggleAction(props.itemId);
       if (!isDone()) {
         setDoneBy(props.currentUserId);
       }
       setIsDone((prev) => !prev);
+
+    }
+  }
+
+  function toggleDone() {
+    if (props.currentUserId) {
+      sendToggle();
+    } else {
+      // Show a warning
+      if (props.warningSetter) {
+        setWaiting(true);
+        props.warningSetter("open");
+      }
     }
   }
 
@@ -137,9 +168,9 @@ export default function WishlistItem(props: WishlistItemProps) {
           <div class="flex justify-end">
             <Show when={!isDone()} fallback={
               <div class="flex flex-col space-y-2">
-                <span>Item Bought!</span>
+                <span class="font-semibold">Item Bought!</span>
                 <Show when={doneBy() && doneBy() === props.currentUserId}>
-                  <button class="btn btn-accent" onClick={toggleDone}>Mark as not-bought</button>
+                  <button class="btn btn-accent" onClick={toggleDone}>Mark as avaliable</button>
                 </Show>
               </div>
             }>
