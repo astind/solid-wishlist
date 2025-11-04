@@ -1,8 +1,9 @@
 "use server";
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, or } from 'drizzle-orm';
 import { db } from '../../db/db';
-import { listTable } from '../../db/schema/list';
+import { listTable, sharedListsTable } from '../../db/schema/list';
 import { listItemTable } from '../../db/schema/list-item';
+import { groupListsTable, groupMembersTable } from '~/db/schema/group';
 
 export async function getLists(ownerId: string, limit?: number, orderByRecent: boolean = false) {
   let lists: any[] = [];
@@ -31,21 +32,37 @@ export async function getLists(ownerId: string, limit?: number, orderByRecent: b
 	return lists;
 }
 
-export async function getAllLists(publicLists: boolean = true, limit?: number) {
+export async function getAllLists(userId: string, publicLists: boolean = true, limit?: number) {
   let lists: any[] = [];
+  let eqValue;
+  if (publicLists) {
+    eqValue = eq(listTable.private, false);
+  } else {
+    eqValue = or(eq(listTable.private, true), eq(listTable.private, false));
+  }
   try {
-    const results = await db.query.listTable.findMany({
+    let results = await db.query.listTable.findMany({
       columns: {
         id: true,
         name: true,
-        description: true
+        description: true,
+        ownerId: true
       },
-      where: eq(listTable.private, publicLists ? false : true || false), // go back and check this if we 
+      where: eqValue,
       orderBy: [desc(listTable.lastUpdated), desc(listTable.dateCreated)],
       limit: limit
     })
     if (results.length) {
-      lists = results;
+      if (publicLists) {
+        lists = results.map((value) => {
+          let {ownerId, ...val} = value;
+          let anyObj: any = <any>val;
+          anyObj["isOwner"] = value.ownerId === userId;
+          return anyObj;
+        });
+      } else {
+        lists = results;
+      }
     }
   } catch (error) {
     console.error(error);
@@ -221,7 +238,8 @@ export async function toggleDone(itemId: number, by: string) {
         list: {
           columns: {
             private: true,
-            listType: true
+            listType: true,
+            ownerId: true
           }
         }
       }
@@ -229,19 +247,32 @@ export async function toggleDone(itemId: number, by: string) {
     if (!item) {
       throw "Item not found";
     }
-    if (item.list?.private) {
+    if (item.list?.private && by !== item.list.ownerId) {
       // check for shared list
-      // check for groups  
+      const sharedRecord = await db.query.sharedListsTable.findFirst({
+        where: and(eq(sharedListsTable.listId, item.listId!), eq(sharedListsTable.userId, by))
+      });
+      if (!sharedRecord) {
+        // check for groups
+        const tableGroup = await db.query.groupListsTable.findFirst({
+          where: eq(groupListsTable.listId, item.listId!),
+        });
+        if (tableGroup) {
+          const memberRecord = await db.query.groupMembersTable.findFirst({
+            where: and(eq(groupMembersTable.memberId, by), eq(groupMembersTable.groupId, tableGroup.groupId))
+          });
+          if (!memberRecord) {
+            throw "Unauthorized";
+          }
+        } else {
+          throw "Unauthorized";
+        }
+      }
     }
     let update: boolean = !item.done;
     let date = null;
     let byUser = null;
-    if (item.done) {
-      // unchecking
-      if (item.list?.listType === 'wishlist' && item.doneBy !== by) {
-        throw "Invalid User";
-      }
-    } else {
+    if (!item.done) {
       date = new Date();
       byUser = by;
     }

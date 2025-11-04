@@ -7,11 +7,13 @@ type WishlistItemProps = {
   index: number;
   itemId: number;
   listId: string;
+  currentUserId?: string;
   canEdit?: boolean
   editIndex?: number;
   deleteIndex?: number
   editAction?: any;
   deleteAction?: any;
+  toggleAction?: any;
   openEditSetter?: Setter<number>;
   openDeleteSetter?: Setter<number>;
 }
@@ -117,7 +119,14 @@ export default function WishlistItem(props: WishlistItemProps) {
       <div class="col-span-10">
         <Show when={!canEdit()}>
           <div class="flex justify-end">
-            <Show when={!item().done} fallback={<div>Item Bought!</div>}>
+            <Show when={!item().done} fallback={
+              <div class="flex flex-col space-y-2">
+                Item Bought!
+                <Show when={item().doneBy && item().doneBy === props.currentUserId}>
+                  <button class="btn btn-accent">Mark as not-bought</button>
+                </Show>
+              </div>
+            }>
               <button class="btn btn-primary">Mark as bought</button>
             </Show>
           </div>

@@ -156,7 +156,8 @@ export async function updateListItem(form: FormData) {
 }
 
 export async function getPublicLists() {
-  const lists = await getAllLists(true);
+  const [, locals] = getRequest();
+  const lists = await getAllLists(locals.user.id, true);
   return {lists: lists}
 }
 
