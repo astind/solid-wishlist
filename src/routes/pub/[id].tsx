@@ -1,6 +1,7 @@
 import { createAsync, useParams, type RouteDefinition } from "@solidjs/router";
 import { For, Match, Suspense, Switch } from "solid-js";
-import { getPublicListItemsQuery } from "~/api/lists/lists.actions";
+import { getPublicListItemsQuery, toggleCompleteAction } from "~/api/lists/lists.actions";
+import { getUserLocalsQuery } from "~/api/users/users.actions";
 import WishlistItem from "~/components/wishlist-item";
 
 export const route = {
@@ -10,6 +11,7 @@ export const route = {
 export default function PublicListPage() {
   const pageParams = useParams();
   const list = createAsync(() => getPublicListItemsQuery(pageParams.id));
+  const user = createAsync(() => getUserLocalsQuery(false));
 
   return (
     <Suspense fallback={<div>Loading List...</div>}>
@@ -23,8 +25,6 @@ export default function PublicListPage() {
           <h1 class="text-2xl mt-4 lg:mt-0 font-semibold">{list()?.name}</h1>
           <p>{list()?.description}</p>
         </div>
-        
-
 
         <ul class="bg-base-100 rounded-box shadow-md p-5 mt-4">
           <For each={list()?.items}>
@@ -37,9 +37,11 @@ export default function PublicListPage() {
                   <WishlistItem
                     itemId={item.id}
                     listId={list()!.id}
-                    item={{ name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done }}
+                    item={{ name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done, doneBy: item.doneBy || undefined }}
                     index={index()}
                     canEdit={false}
+                    toggleAction={toggleCompleteAction}
+                    currentUserId={user()?.id}
                   ></WishlistItem>
                 </Match>
               </Switch>

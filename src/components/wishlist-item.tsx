@@ -1,6 +1,7 @@
-import { createEffect, createSignal, Match, Setter, Show, Switch } from "solid-js";
+import { createEffect, createSignal, Setter, Show } from "solid-js";
 import { type WishlistItem } from "~/api/models/wishlist-item.model";
 import WishlistForm from "./wishlist-form";
+import { useAction } from "@solidjs/router";
 
 type WishlistItemProps = {
   item: WishlistItem
@@ -20,9 +21,14 @@ type WishlistItemProps = {
 
 export default function WishlistItem(props: WishlistItemProps) {
   const [item, setItem] = createSignal(props.item);
+  const [isDone, setIsDone] = createSignal(props.item.done);
   const [isEditClosed, setIsEditClosed] = createSignal(true);
   const [canEdit] = createSignal(props.canEdit !== undefined ? props.canEdit : false);
-
+  const [doneBy, setDoneBy] = createSignal(props.item.doneBy);
+  let toggleAction: any = undefined;
+  if (props.toggleAction) {
+    toggleAction = useAction(props.toggleAction);
+  }
   createEffect(() => {
     if (!isEditClosed()) {
       closeDropDown();
@@ -46,6 +52,16 @@ export default function WishlistItem(props: WishlistItemProps) {
         props.openEditSetter(-1);
         props.openDeleteSetter(props.index);
       }
+    }
+  }
+
+  function toggleDone() {
+    if (toggleAction) {
+      toggleAction(props.itemId);
+      if (!isDone()) {
+        setDoneBy(props.currentUserId);
+      }
+      setIsDone((prev) => !prev);
     }
   }
 
@@ -119,15 +135,15 @@ export default function WishlistItem(props: WishlistItemProps) {
       <div class="col-span-10">
         <Show when={!canEdit()}>
           <div class="flex justify-end">
-            <Show when={!item().done} fallback={
+            <Show when={!isDone()} fallback={
               <div class="flex flex-col space-y-2">
-                Item Bought!
-                <Show when={item().doneBy && item().doneBy === props.currentUserId}>
-                  <button class="btn btn-accent">Mark as not-bought</button>
+                <span>Item Bought!</span>
+                <Show when={doneBy() && doneBy() === props.currentUserId}>
+                  <button class="btn btn-accent" onClick={toggleDone}>Mark as not-bought</button>
                 </Show>
               </div>
             }>
-              <button class="btn btn-primary">Mark as bought</button>
+              <button class="btn btn-primary" onClick={toggleDone}>Mark as bought</button>
             </Show>
           </div>
         </Show>

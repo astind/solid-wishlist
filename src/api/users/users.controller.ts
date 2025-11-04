@@ -66,13 +66,17 @@ export async function isLoggedIn() {
   }
 }
 
-export async function getUserLocals() {
+export async function getUserLocals(redirectUser: boolean = true) {
   const [, locals] = getRequest();
   if (locals) {
     console.log('return user');
     return locals.user;
   } else {
-    console.log('redirect to login');
-    throw redirect("/login");
+    if (redirectUser) {
+      console.log('redirect to login');
+      throw redirect("/login");
+    } else {
+      return undefined;
+    }
   }
 }
