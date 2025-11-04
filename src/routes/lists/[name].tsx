@@ -122,10 +122,7 @@ export default function ListPage() {
       <dialog id="list-settings-modal" class="modal">
         <Show when={list()}>
           <ListSettings
-            listname={list()!.name}
-            description={list()!.description || undefined}
-            listType={list()!.listType}
-            private={list()!.private}
+            list={{name: list()!.name, id: list()!.id, description: list()?.description || undefined, listType: list()!.listType, private: list()!.private}}
             groups={list()?.groups}
             shared={list()?.shared}
             modalId="list-settings-modal"

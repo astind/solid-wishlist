@@ -1,10 +1,8 @@
 import { createSignal, Show } from "solid-js"
+import { List } from "~/api/models/list.model";
 
 export type ListSettingsProp = {
-  listname: string, 
-  description: string | undefined,
-  listType: "checklist" | "wishlist",
-  private: boolean,
+  list: List
   groups?: any[],
   shared?: any[],
   modalId: string
@@ -27,7 +25,7 @@ export default function ListSettings(props: ListSettingsProp) {
 
   return (
     <div class="modal-box">
-      <h3 class="text-lg font-bold">{props.listname} Settings:</h3>
+      <h3 class="text-lg font-bold">{props.list.name} Settings:</h3>
         <div class="collapse collapse-arrow bg-base-200 border-base-300 border mt-4">
           <input type="radio" name="list-settings" value="list" checked={section() === 'list'} onChange={onCheckboxChange}/>
           <div class="collapse-title font-semibold">List Details</div>
@@ -35,19 +33,19 @@ export default function ListSettings(props: ListSettingsProp) {
             <form  method="post"> {/* add update list action */}
               <fieldset class="fieldset w-full px-4">
                 <label class="label" for="name">Name:</label>
-                <input type="text" id="name" class="input w-full" placeholder="Name" name="name" value={props.listname} />
+                <input type="text" id="name" class="input w-full" placeholder="Name" name="name" value={props.list.name} />
 
                 <label class="label" for="description">Description</label>
-                <input type="text" class="input w-full" id="description" name="description" value={props.description} placeholder="Description" />
+                <input type="text" class="input w-full" id="description" name="description" value={props.list.description} placeholder="Description" />
 
                 <label class="label" for="list-type">List Type:</label>
-                <select name="listType" id="list-type" class="select" value={props.listType}>
+                <select name="listType" id="list-type" class="select" value={props.list.listType}>
                   <option value="checklist">Checklist</option>
                   <option value="wishlist">Wishlist</option>
                 </select>
 
                 <label class="label mt-2">
-                  <input type="checkbox" class="checkbox" name="private" checked={props.private} />
+                  <input type="checkbox" class="checkbox" name="private" checked={props.list.private} />
                   Private
                 </label>
                 <p class="label">Private lists cannot be found with a link.</p>
