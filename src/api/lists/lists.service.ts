@@ -51,17 +51,17 @@ export async function getAllLists(userId: string, publicLists: boolean = true, l
       where: eqValue,
       orderBy: [desc(listTable.lastUpdated), desc(listTable.dateCreated)],
       limit: limit
-    })
+    });
     if (results.length) {
       if (publicLists) {
         lists = results.map((value) => {
           let {ownerId, ...val} = value;
-          let anyObj: any = <any>val;
+          let anyObj: any = val as any;
           anyObj["isOwner"] = value.ownerId === userId;
           return anyObj;
         });
       } else {
-        lists = results;
+        lists = results; 
       }
     }
   } catch (error) {
