@@ -4,4 +4,5 @@ export type List = {
   description?: string;
   listType: "wishlist" | "checklist";
   private: boolean;
+  isOwner?: boolean;
 }

@@ -1,5 +1,5 @@
 "use server";
-import { and, asc, desc, eq, or } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, or } from 'drizzle-orm';
 import { db } from '../../db/db';
 import { listTable, sharedListsTable } from '../../db/schema/list';
 import { listItemTable } from '../../db/schema/list-item';
@@ -32,13 +32,16 @@ export async function getLists(ownerId: string, limit?: number, orderByRecent: b
 	return lists;
 }
 
-export async function getAllLists(publicLists: boolean = true, userId?: string, limit?: number) {
+export async function getAllLists(publicLists: boolean = true, userId?: string, limit?: number, name?: string) {
   let lists: any[] = [];
   let eqValue;
   if (publicLists) {
     eqValue = eq(listTable.private, false);
   } else {
     eqValue = or(eq(listTable.private, true), eq(listTable.private, false));
+  }
+  if (name) {
+    eqValue = and(ilike(listTable.name, `%${name}%`), eqValue);
   }
   try {
     let results = await db.query.listTable.findMany({

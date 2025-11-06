@@ -188,3 +188,17 @@ export async function getPublicListItems(listId: string) {
   return list;
 }
 
+export async function searchPublicLists(form: FormData) {
+  const [, locals] = getRequestPublic();
+  let userId = undefined;
+  if (locals) {
+    userId = locals.user.id;
+  }
+  const name = getFormData(form, 'listname') as string;
+  if (!name) {
+    return {lists: []};
+  }
+  const lists = await getAllLists(true, userId, undefined, name);
+  return {lists: lists}
+}
+
