@@ -3,6 +3,7 @@ import { redirect } from "@solidjs/router";
 import { getRequestEvent, RequestEvent } from "solid-js/web";
 import { type Locals } from "../models/locals.model";
 import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, getPublicList, newListItem, toggleDone } from "./lists.service";
+import { ListSortOptions } from "../models/list.model";
 
 function getRequest(): [RequestEvent, Locals] {
   const requestEvent = getRequestEvent();
@@ -80,10 +81,10 @@ export async function removeList(form: FormData) {
   }
 }
 
-export async function getItems(listname: string) {
+export async function getItems(listname: string, sortBy?: ListSortOptions) {
   if (listname && typeof listname === "string") {
     const [, locals] = getRequest();
-    const list = await getList(decodeURIComponent(listname), locals.user.id);
+    const list = await getList(decodeURIComponent(listname), locals.user.id, sortBy);
     if (list) {
       return list
     } else {
@@ -183,8 +184,8 @@ export async function getPublicLists() {
   return {lists: lists}
 }
 
-export async function getPublicListItems(listId: string) {
-  const list = await getPublicList(listId);
+export async function getPublicListItems(listId: string, sortBy?: ListSortOptions) {
+  const list = await getPublicList(listId, sortBy);
   return list;
 }
 

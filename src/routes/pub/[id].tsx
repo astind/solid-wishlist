@@ -1,17 +1,19 @@
-import { A, createAsync, useParams, type RouteDefinition } from "@solidjs/router";
+import { A, createAsync, NavigateOptions, revalidate, useParams, useSearchParams, type RouteDefinition } from "@solidjs/router";
 import { createEffect, createSignal, For, Match, Show, Suspense, Switch } from "solid-js";
 import { getPublicListItemsQuery, toggleCompleteAction } from "~/api/lists/lists.actions";
+import { ListSortOptions } from "~/api/models/list.model";
 import { getUserLocalsQuery } from "~/api/users/users.actions";
 import WarningModal from "~/components/warning-modal";
 import WishlistItem from "~/components/wishlist-item";
 
 export const route = {
-  preload: ({ params }) => getPublicListItemsQuery(params.id)
+  preload: ({ params, location }) => getPublicListItemsQuery(params.id, location.query.sort as ListSortOptions || undefined)
 } satisfies RouteDefinition
 
 export default function PublicListPage() {
   const pageParams = useParams();
-  const list = createAsync(() => getPublicListItemsQuery(pageParams.id));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const list = createAsync(() => getPublicListItemsQuery(pageParams.id, searchParams.sort as ListSortOptions || undefined));
   const user = createAsync(() => getUserLocalsQuery(false));
   const [warning, setWarning] = createSignal<"close" | "confirm" | "open">("close");
 
@@ -24,7 +26,11 @@ export default function PublicListPage() {
     const element = document.getElementById("public-list-warning") as any;
     element?.close();
   }
-  
+
+  function sortChanged(value: string) {
+    setSearchParams({sort: value}, {replace: true});
+  }
+
   createEffect(() => {
     if (warning() === "open") {
       openModal();
@@ -48,7 +54,7 @@ export default function PublicListPage() {
         </div>
 
         <dialog id="public-list-warning" class="modal">
-          <WarningModal 
+          <WarningModal
             title="Mark as bought?"
             text="Since you are not logged in/registered, this is a permanent action. It cannot be undone, and others will not be able to mark this as bought. Continue with change?"
             responseSetter={setWarning}
@@ -59,7 +65,17 @@ export default function PublicListPage() {
           <h1 class="text-2xl mt-4 lg:mt-0 font-semibold">{list()?.name}</h1>
           <p>{list()?.description}</p>
         </div>
-        <ul class="bg-base-100 rounded-box shadow-md p-5 mt-4">
+        <div class="flex justify-end mt-4">
+          <select class="select" onChange={(e) => sortChanged(e.currentTarget.value)}>
+            <option disabled selected={!searchParams.sort}>Sort By</option>
+            <option value="price-up" selected={searchParams.sort === 'price-up'}>Price: High to Low</option>
+            <option value="price-down" selected={searchParams.sort === 'price-down'}>Price: Low to High</option>
+            <option value="name" selected={searchParams.sort === 'name'}>Name</option>
+            <option value="date" selected={searchParams.sort === 'date'}>Date Added</option>
+            {/* <option value="rank" selected={searchParams.sort === 'rank'}>Rank</option> */}
+          </select>
+        </div>
+        <ul class="bg-base-100 rounded-box shadow-md p-5 mt-2">
           <For each={list()?.items}>
             {(item, index) => (
               <Switch>

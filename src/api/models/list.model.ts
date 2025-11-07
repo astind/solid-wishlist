@@ -6,3 +6,6 @@ export type List = {
   private: boolean;
   isOwner?: boolean;
 }
+
+export type ListSortOptions = "price-up" | "price-down" | "rank" | "name" | "date"
+
