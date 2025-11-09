@@ -31,7 +31,8 @@ export const listItemTable = pgTable(
 		autoDelete: boolean('auto_delete').notNull().default(false),
 		dateAdded: timestamp().defaultNow(),
 		doneBy: uuid("done_by").references(() => userTable.id),
-		dateDone: timestamp('date_done')
+		dateDone: timestamp('date_done'),
+    favorite: boolean('favorite').notNull().default(false)
 	},
 	(t) => [unique('item_name').on(t.listId, t.name)]
 );
