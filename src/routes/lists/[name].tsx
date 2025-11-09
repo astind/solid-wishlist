@@ -1,21 +1,24 @@
-import { createAsync, revalidate, type RouteDefinition, useParams, useSubmission } from "@solidjs/router"
+import { createAsync, revalidate, type RouteDefinition, useParams, useSearchParams, useSubmission } from "@solidjs/router"
 import { createEffect, createSignal, For, Match, onMount, Show, Suspense, Switch } from "solid-js";
 import { addChecklistItemAction, addWishlistItemAction, deleteCompletedAction, deleteListItemAction, getListItemsQuery, toggleCompleteAction, updateListItemAction } from "~/api/lists/lists.actions";
+import { ListSortOptions } from "~/api/models/list.model";
 import ChecklistForm from "~/components/checklist-form";
 import ChecklistItem from "~/components/checklist-item";
 import ListSettings from "~/components/list-settings";
+import SortInput from "~/components/sort-input";
 import WishlistForm from "~/components/wishlist-form";
 import WishlistItem from "~/components/wishlist-item";
 
 export const route = {
-  preload: ({ params }) => getListItemsQuery(params.name),
+  preload: ({ params, location }) => getListItemsQuery(params.name, location.query.sort as ListSortOptions || undefined),
 } satisfies RouteDefinition
 
 
 export default function ListPage() {
   const pageParams = useParams();
+  const [searchParams] = useSearchParams();
   const [hostname, setHostname] = createSignal<string>();
-  const list = createAsync(() => getListItemsQuery(pageParams.name));
+  const list = createAsync(() => getListItemsQuery(pageParams.name, searchParams.sort as ListSortOptions));
   const [isNewItemOpen, setIsNewItemOpen] = createSignal(false);
   const [isEditOpen, setIsEditOpen] = createSignal(-1);
   const [isDeleteOpen, setIsDeleteOpen] = createSignal(-1);
@@ -203,19 +206,22 @@ export default function ListPage() {
 
       <div class="flex mt-4 justify-between items-center min-h-10">
         <h2 class="text-xl font-semibold">Items:</h2>
-        <Show when={list()?.listType === "checklist" && checkedCount() > 0}>
-          <form action={deleteCompletedAction} method="post">
-            <input type="hidden" name="listId" value={list()?.id} />
-            <button class="btn btn-square" type="submit" aria-label="Delete all checked items">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
-              </svg>
-            </button>
-          </form>
-        </Show>
+        <div class="flex space-x-4">
+          <SortInput />
+          <Show when={list()?.listType === "checklist" && checkedCount() > 0}>
+            <form action={deleteCompletedAction} method="post">
+              <input type="hidden" name="listId" value={list()?.id} />
+              <button class="btn btn-square" type="submit" aria-label="Delete all checked items">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+                </svg>
+              </button>
+            </form>
+          </Show>
+        </div>
       </div>
 
-      <ul class="bg-base-100 rounded-box shadow-md p-5">
+      <ul class="bg-base-100 rounded-box shadow-md p-5 mt-2">
         <For each={list()?.items}>
           {(item, index) => (
             <Switch>
