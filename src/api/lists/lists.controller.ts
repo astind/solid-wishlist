@@ -2,7 +2,7 @@
 import { redirect } from "@solidjs/router";
 import { getRequestEvent, RequestEvent } from "solid-js/web";
 import { type Locals } from "../models/locals.model";
-import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, getPublicList, newListItem, toggleDone } from "./lists.service";
+import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, getPublicList, newListItem, setFavorite, toggleDone } from "./lists.service";
 import { ListSortOptions } from "../models/list.model";
 
 function getRequest(): [RequestEvent, Locals] {
@@ -201,5 +201,13 @@ export async function searchPublicLists(form: FormData) {
   }
   const lists = await getAllLists(true, userId, undefined, name);
   return {lists: lists}
+}
+
+export async function toggleFavorite(form: FormData) {
+  const [, locals] = getRequest();
+  const listId = getFormData(form, "listId", true) as string;
+  const itemId = getFormData(form, "itemId", true) as string;
+  await setFavorite(itemId, listId, locals.user.id);
+  return {message: "Favorite Toggled"};
 }
 

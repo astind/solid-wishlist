@@ -6,4 +6,5 @@ export type WishlistItem = {
   iconLink?: string
   done: boolean,
   doneBy?: string
+  favorite: boolean,
 }

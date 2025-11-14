@@ -386,3 +386,22 @@ export async function getPublicList(listId: string, sortBy?: ListSortOptions) {
   }
 }
 
+export async function setFavorite(itemId: string, listId: string, userId: string) {
+  try {
+    await verifyListOwner(userId, listId);
+    const item = await db.query.listItemTable.findFirst({
+      columns: { favorite: true, }
+    });
+    if (item) {
+      await db.update(listItemTable).set({
+        favorite: !item?.favorite
+      });
+    } else {
+      throw "can't find item";
+    }
+  } catch (error) {
+    console.error(error);
+    throw "Failed to toggle favorite";
+  }
+}
+
