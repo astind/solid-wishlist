@@ -2,6 +2,7 @@ import { createEffect, createSignal, Setter, Show } from "solid-js";
 import { type WishlistItem } from "~/api/models/wishlist-item.model";
 import WishlistForm from "./wishlist-form";
 import { useAction } from "@solidjs/router";
+import { toggleFavoriteAction } from "~/api/lists/lists.actions";
 
 type WishlistItemProps = {
   item: WishlistItem
@@ -27,7 +28,9 @@ export default function WishlistItem(props: WishlistItemProps) {
   const [isEditClosed, setIsEditClosed] = createSignal(true);
   const [canEdit] = createSignal(props.canEdit !== undefined ? props.canEdit : false);
   const [doneBy, setDoneBy] = createSignal(props.item.doneBy);
-  const [waitingForConfirm, setWaiting] = createSignal(false)
+  const [waitingForConfirm, setWaiting] = createSignal(false);
+  const [itemFavorite, setItemFavorite] = createSignal(props.item.favorite);
+  const favoriteAction = useAction(toggleFavoriteAction)
 
   let toggleAction: any = undefined;
   if (props.toggleAction) {
@@ -95,13 +98,18 @@ export default function WishlistItem(props: WishlistItemProps) {
     }
   }
 
+  function toggleFavorite() {
+    setItemFavorite((prev) => !prev);
+    favoriteAction(`${props.itemId}`, props.listId)
+  }
+
   return (
     <li class="flex-col py-5 first:pt-0 last:pb-0 last:border-b-0 border-b border-base-200">
-      <div class="flex space-x-2 md:space-x-4">
+      <div class="flex space-x-4">
         <div class="grow-0 flex items-top">
           <Show when={canEdit}>
-            <button class="btn btn-circle" title="Toggle Favorite">
-              <Show when={item().favorite} fallback={
+            <button class="btn btn-circle text-primary" title="Toggle Favorite" onClick={toggleFavorite}>
+              <Show when={itemFavorite()} fallback={
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
                 </svg>

@@ -6,15 +6,20 @@ type SortOptions = {
   value: string;
 }
 
-export default function SortInput(props: SortOptions[] | {}) {
+type SortInputProps = {
+  options?: SortOptions[]
+}
+
+export default function SortInput(props: SortInputProps) {
   const merged = mergeProps(
     [
       {name: "Price: High to Low", value: "price-up"},
       {name: "Price: Low to High", value: "price-down"},
       {name: "Name", value: "name"},
-      {name: "Date Added", value: "date"}
+      {name: "Date Added", value: "date"},
+      {name: "Favorite", value: "favorite"}
       //{name: "Rank", value: "rank"}
-    ], props
+    ], props.options
   );
 
   const [searchParams, setSearchParams] = useSearchParams();

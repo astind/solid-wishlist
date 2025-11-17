@@ -151,6 +151,14 @@ function getOrderByList(sortBy?: ListSortOptions) {
       sort = [asc(listItemTable.price), asc(listItemTable.rank), desc(listItemTable.dateAdded)];
       break;
 
+    case "favorite":
+      sort = [desc(listItemTable.favorite), asc(listItemTable.rank), desc(listItemTable.dateAdded)];
+      break;
+
+    case "done":
+      sort = [desc(listItemTable.done), asc(listItemTable.rank), desc(listItemTable.dateAdded)];
+      break;
+
     default:
       sort = [desc(listItemTable.dateAdded), desc(listItemTable.name)]
       break;
@@ -386,16 +394,19 @@ export async function getPublicList(listId: string, sortBy?: ListSortOptions) {
   }
 }
 
-export async function setFavorite(itemId: string, listId: string, userId: string) {
+export async function setFavorite(itemId: number, listId: string, userId: string) {
   try {
     await verifyListOwner(userId, listId);
     const item = await db.query.listItemTable.findFirst({
-      columns: { favorite: true, }
+      columns: { favorite: true, },
+      where: eq(listItemTable.id, itemId)
     });
     if (item) {
       await db.update(listItemTable).set({
         favorite: !item?.favorite
-      });
+      }).where(
+        eq(listItemTable.id, itemId)
+      );
     } else {
       throw "can't find item";
     }

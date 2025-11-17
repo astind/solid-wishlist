@@ -207,7 +207,9 @@ export default function ListPage() {
       <div class="flex mt-4 justify-between items-center min-h-10">
         <h2 class="text-xl font-semibold">Items:</h2>
         <div class="flex space-x-4">
-          <SortInput />
+          <Show when={list()?.listType === "checklist"} fallback={<SortInput/>}>
+            <SortInput options={[{name: "Date Added", value: "date"},{name: "Done", value: "done"}]}></SortInput>
+          </Show>
           <Show when={list()?.listType === "checklist" && checkedCount() > 0}>
             <form action={deleteCompletedAction} method="post">
               <input type="hidden" name="listId" value={list()?.id} />
@@ -246,7 +248,7 @@ export default function ListPage() {
                 <WishlistItem
                   itemId={item.id}
                   listId={list()!.id}
-                  item={{ name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done }}
+                  item={{ name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done, favorite: item.favorite }}
                   index={index()}
                   editIndex={isEditOpen()}
                   deleteIndex={isDeleteOpen()}

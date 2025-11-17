@@ -7,5 +7,5 @@ export type List = {
   isOwner?: boolean;
 }
 
-export type ListSortOptions = "price-up" | "price-down" | "rank" | "name" | "date"
+export type ListSortOptions = "price-up" | "price-down" | "rank" | "name" | "date" | "favorite" | "done"
 

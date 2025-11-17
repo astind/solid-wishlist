@@ -88,10 +88,10 @@ export default function ListsPage() {
                     action={deleteListAction}
                     method="post"
                   >
-                    <div class="flex justify-between items-center mt-2">
+                    <div class="flex flex-col md:flex-row justify-between items-center mt-2">
                       <p>Are you sure you want to delete this list? This action is permanent</p>
                       <input type="hidden" name="id" value={list.id} />
-                      <div class="space-x-4">
+                      <div class="mt-2 md:mt-0 space-x-4">
                         <button type="submit" class="btn btn-error">Delete</button>
                         <button type="button" class="btn btn-success" onClick={() => setDeleteIndex(-1)}>Cancel</button>
                       </div>

@@ -203,11 +203,9 @@ export async function searchPublicLists(form: FormData) {
   return {lists: lists}
 }
 
-export async function toggleFavorite(form: FormData) {
+export async function toggleFavorite(itemId: string, listId: string) {
   const [, locals] = getRequest();
-  const listId = getFormData(form, "listId", true) as string;
-  const itemId = getFormData(form, "itemId", true) as string;
-  await setFavorite(itemId, listId, locals.user.id);
+  await setFavorite(+itemId, listId, locals.user.id);
   return {message: "Favorite Toggled"};
 }
 
