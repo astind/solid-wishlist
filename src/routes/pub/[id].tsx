@@ -76,7 +76,7 @@ export default function PublicListPage() {
                   <WishlistItem
                     itemId={item.id}
                     listId={list()!.id}
-                    item={{ name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done, doneBy: item.doneBy || undefined }}
+                    item={{ name: item.name, description: item.description || undefined, url: item.url || undefined, price: item.price || undefined, iconLink: item.iconLink || undefined, done: item.done, doneBy: item.doneBy || undefined, favorite: item.favorite }}
                     index={index()}
                     canEdit={false}
                     toggleAction={toggleCompleteAction}

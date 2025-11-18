@@ -188,7 +188,7 @@ export default function WishlistItem(props: WishlistItemProps) {
         </div>
       </div>
       {/* bottom of row */}
-      <div class="flex">
+      <div class="flex justify-end mt-2">
         <Show when={!canEdit()}>
           <div class="flex justify-end">
             <Show when={!isDone()} fallback={
