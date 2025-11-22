@@ -92,7 +92,7 @@ export async function addList(name: string, ownerId: string, description?: strin
   }
 }
 
-export async function updateList(listId: string, name: string, ownerId: string, description?: string, isPrivate: boolean = false, listType: "wishlist" | "checklist" = "wishlist", listPassword?: string) {
+export async function updateList(listId: string, name: string, ownerId: string, description: string | null = null, isPrivate: boolean = false, listType: "wishlist" | "checklist" = "wishlist", listPassword: string | null = null) {
   let nameChange = false;
   try {
     const list = await db.query.listTable.findFirst({
