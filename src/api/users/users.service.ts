@@ -10,7 +10,7 @@ function validateUsername(username: unknown): username is string {
 		typeof username === 'string' &&
 		username.length >= 3 &&
 		username.length <= 31 &&
-		/^[a-z0-9_-]+$/.test(username)
+		/^[A-Za-z0-9_-]+$/.test(username)
 	);
 }
 
@@ -50,10 +50,10 @@ export async function getExistingUser(username: FormDataEntryValue | null, passw
 export async function createNewUser(username: FormDataEntryValue | null, password: FormDataEntryValue | null) {
 
 	if (!validateUsername(username)) {
-		throw 'Invalid username';
+		throw 'Invalid username (min 3, max 31 characters, alphanumeric only)';
 	}
 	if (!validatePassword(password)) {
-		throw 'Invalid password';
+		throw 'Invalid password (min 6, max 255 characters)';
 	}
 
 	const passwordHash = await hash(password, {
