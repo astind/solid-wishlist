@@ -2,7 +2,7 @@
 import { redirect } from "@solidjs/router";
 import { getRequestEvent, RequestEvent } from "solid-js/web";
 import { type Locals } from "../models/locals.model";
-import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, getPublicList, newListItem, setFavorite, toggleDone } from "./lists.service";
+import { addList, deleteAllDone, deleteList, deleteListItem, editListItem, getAllLists, getList, getLists, getPublicList, newListItem, setFavorite, toggleDone, updateList } from "./lists.service";
 import { ListSortOptions } from "../models/list.model";
 
 function getRequest(): [RequestEvent, Locals] {
@@ -68,6 +68,32 @@ export async function newList(form: FormData) {
   }
   await addList(name, locals.user.id, description || undefined, isPrivate, listType || undefined as any);
   return {message: `Added List ${name}`};
+}
+
+export async function editList(form: FormData) {
+  const [, locals] = getRequest();
+  const name = form.get('name') as string | null;
+  if (!name) {
+    throw "Missing name field";
+  }
+  const listId = getFormData(form, "listId", true) as string;
+  const description = getFormData(form, 'description') as string | undefined;
+  const checkPrivate = form.get('private');
+  const isPrivate = checkPrivate !== null && checkPrivate === 'on';
+  const listType = form.get('listType');
+  if (listType) {
+    if (listType !== "wishlist" && listType !== "checklist") {
+      throw "Invalid list type";
+    }
+  }
+  const nameChange = await updateList(listId, name, locals.user.id, description, isPrivate, listType as any);
+  if (nameChange) {
+    console.log("change name");
+    return redirect(`/lists`);
+  } else {
+    console.log("not name change");
+    return {message: "List Updated"};
+  }
 }
 
 export async function removeList(form: FormData) {

@@ -93,7 +93,18 @@ export async function addList(name: string, ownerId: string, description?: strin
 }
 
 export async function updateList(listId: string, name: string, ownerId: string, description?: string, isPrivate: boolean = false, listType: "wishlist" | "checklist" = "wishlist", listPassword?: string) {
+  let nameChange = false;
   try {
+    const list = await db.query.listTable.findFirst({
+      columns: {
+        id: true,
+        name: true
+      },
+      where: eq(listTable.id, listId)
+    });
+    if (list?.name !== name) {
+      nameChange = true;
+    }
     await db.update(listTable).set({
       name: name,
       description: description,
@@ -111,6 +122,7 @@ export async function updateList(listId: string, name: string, ownerId: string, 
   catch (e: any) {
     throw "Failed to update list";
   }
+  return nameChange;
 }
 
 export async function deleteList(listId: string, ownerId: string) {

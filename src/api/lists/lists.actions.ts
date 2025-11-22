@@ -1,5 +1,5 @@
 import { action, query } from "@solidjs/router";
-import { deleteCheckedItems, getItems, getPublicListItems, getPublicLists, getUserLists, newChecklistItem, newList, newWishlistItem, removeList, removeListItem, searchPublicLists, toggleComplete, toggleFavorite, updateListItem } from "./lists.controller";
+import { deleteCheckedItems, editList, getItems, getPublicListItems, getPublicLists, getUserLists, newChecklistItem, newList, newWishlistItem, removeList, removeListItem, searchPublicLists, toggleComplete, toggleFavorite, updateListItem } from "./lists.controller";
 
 export const getListsQuery = query(getUserLists, "getLists");
 export const newListAction = action(newList, "newList");
@@ -15,3 +15,4 @@ export const getPublicListsQuery = query(getPublicLists, "getPublicLists");
 export const getPublicListItemsQuery = query(getPublicListItems, "getPublicListItems");
 export const searchPublicListsAction = action(searchPublicLists, "searchPublicLists");
 export const toggleFavoriteAction = action(toggleFavorite, "toggleFavorite");
+export const updateListAction = action(editList, "editList");

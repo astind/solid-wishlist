@@ -1,4 +1,5 @@
 import { createSignal, Show } from "solid-js"
+import { updateListAction } from "~/api/lists/lists.actions";
 import { List } from "~/api/models/list.model";
 
 export type ListSettingsProp = {
@@ -30,8 +31,9 @@ export default function ListSettings(props: ListSettingsProp) {
           <input type="radio" name="list-settings" value="list" checked={section() === 'list'} onChange={onCheckboxChange}/>
           <div class="collapse-title font-semibold">List Details</div>
           <div class="collapse-content">
-            <form  method="post"> {/* add update list action */}
+            <form method="post" action={updateListAction}>
               <fieldset class="fieldset w-full px-4">
+                <input type="hidden" name="listId" value={props.list.id}/>
                 <label class="label" for="name">Name:</label>
                 <input type="text" id="name" class="input w-full" placeholder="Name" name="name" value={props.list.name} />
 
