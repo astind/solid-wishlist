@@ -88,10 +88,8 @@ export async function editList(form: FormData) {
   }
   const nameChange = await updateList(listId, name, locals.user.id, description, isPrivate, listType as any);
   if (nameChange) {
-    console.log("change name");
     return redirect(`/lists`);
   } else {
-    console.log("not name change");
     return {message: "List Updated"};
   }
 }
